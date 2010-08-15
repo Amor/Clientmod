@@ -808,8 +808,8 @@ const char *client_error_string()
 
 static void client_render()
 {
-	if(config.gfx_clear)	
-		gfx_clear(1,1,0);
+	if(config.gfx_clear || config.gfx_gamelayer)
+		gfx_clear(0.3f,0.3f,0.6f); 
 
 	modc_render();
 	client_debug_render();

@@ -6,6 +6,7 @@
 MAPIMAGES::MAPIMAGES()
 {
 	count = 0;
+	entities_textures = -1;
 }
 
 void MAPIMAGES::on_mapload()
@@ -42,4 +43,18 @@ void MAPIMAGES::on_mapload()
 		}
 	}
 }
+
+int MAPIMAGES::get_entities()
+{
+	if(entities_textures == -1)
+	{
+		char entities_path[256];
+		str_format(entities_path, sizeof(entities_path), "editor/entities_clear.png");
+		entities_textures = gfx_load_texture(entities_path, IMG_AUTO, 0); // Dunedune:  first try to load the clear entities
+		if(entities_textures == -1)
+			entities_textures = gfx_load_texture("editor/entities.png", IMG_AUTO, 0); // Failed : load the std entities
+	}
+	return entities_textures;
+}
+
 

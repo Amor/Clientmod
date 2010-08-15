@@ -113,7 +113,7 @@ void MAPLAYERS::on_render()
 					render = true;
 			}
 			
-			if(render && !is_game_layer)
+			if(render && !is_game_layer && !config.gfx_gamelayer || (config.gfx_gamelayer && is_game_layer))
 			{
 				//layershot_begin();
 				
@@ -121,7 +121,12 @@ void MAPLAYERS::on_render()
 				{
 					MAPITEM_LAYER_TILEMAP *tmap = (MAPITEM_LAYER_TILEMAP *)layer;
 					if(tmap->image == -1)
-						gfx_texture_set(-1);
+						{
+						if(!config.gfx_gamelayer)
+							gfx_texture_set(-1);
+						else
+							gfx_texture_set(gameclient.mapimages->get_entities());
+					}
 					else
 						gfx_texture_set(gameclient.mapimages->get(tmap->image));
 						

@@ -35,8 +35,10 @@ int col_init()
 			tiles[i].index = COLFLAG_SOLID;
 		else if(index == TILE_NOHOOK)
 			tiles[i].index = COLFLAG_SOLID|COLFLAG_NOHOOK;
+		else if(index == (COLFLAG_SOLID|COLFLAG_NOHOOK)) // 6th place <---> 4th place in the entities
+			tiles[i].index = TILE_NOHOOK; // Little hack for the game tiles shower - switch both tiles
 		else
-			tiles[i].index = 0;
+			tiles[i].index = index;
 	}
 				
 	return 1;
@@ -48,7 +50,9 @@ int col_get(int x, int y)
 	int nx = clamp(x/32, 0, width-1);
 	int ny = clamp(y/32, 0, height-1);
 	
-	if(tiles[ny*width+nx].index > 128)
+	if(tiles[ny*width+nx].index == COLFLAG_SOLID || tiles[ny*width+nx].index == (COLFLAG_SOLID|COLFLAG_NOHOOK) || tiles[ny*width+nx].index == COLFLAG_DEATH)
+		return tiles[ny*width+nx].index;
+	else
 		return 0;
 	return tiles[ny*width+nx].index;
 }

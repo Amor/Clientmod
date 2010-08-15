@@ -79,6 +79,8 @@ static void rotate(POINT *center, POINT *point, float rotation)
 
 void render_quads(QUAD *quads, int num_quads, void (*eval)(float time_offset, int env, float *channels), int renderflags)
 {
+	if(config.gfx_gamelayer)
+		return;
 	gfx_quads_begin();
 	float conv = 1/255.0f;
 	for(int i = 0; i < num_quads; i++)

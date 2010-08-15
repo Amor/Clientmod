@@ -1,4 +1,4 @@
-objs
+*.obj
 datasrc/*.pyc
 .*.sw[po]
 *.o
