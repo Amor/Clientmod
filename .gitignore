@@ -8,5 +8,4 @@ src/game/generated/gs_data.cpp
 src/game/generated/gs_data.hpp
 src/game/generated/nethash.c
 config.bam
-teeworlds_srv.exe
-teeworlds_amor.exe
+*.exe
