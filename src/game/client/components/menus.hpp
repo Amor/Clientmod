@@ -3,6 +3,12 @@
 #include <game/client/component.hpp>
 #include <game/client/ui.hpp>
 
+typedef struct 
+{
+	const char *name;
+	const char *command;
+	int keyid;
+} KEYINFO;
 
 // compnent to fetch keypresses, override all other input
 class MENUS_KEYBINDER : public COMPONENT
@@ -162,6 +168,14 @@ class MENUS : public COMPONENT
 	void render_settings_graphics(RECT main_view);
 	void render_settings_sound(RECT main_view);
 	void render_settings(RECT main_view);
+	// TeeComp related
+	void render_rgb_sliders(RECT* main_view, RECT* button, int &r, int &g, int &b, bool enabled);
+	void ui_do_keybinder(KEYINFO& key, RECT* r);
+	void render_settings_teecomp(RECT main_view);
+	void render_settings_teecomp_skins(RECT main_view);
+	void render_settings_teecomp_stats(RECT main_view);
+	void render_settings_teecomp_misc(RECT main_view);
+	void render_settings_teecomp_about(RECT main_view);
 	
 	void set_active(bool active);
 public:
@@ -181,3 +195,4 @@ public:
 	virtual bool on_input(INPUT_EVENT e);
 	virtual bool on_mousemove(float x, float y);
 };
+

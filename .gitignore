@@ -1,7 +1,7 @@
+objs/*.obj
 *.obj
 datasrc/*.pyc
 .*.sw[po]
-*.o
 src/game/generated/g_protocol.cpp
 src/game/generated/g_protocol.hpp
 src/game/generated/gs_data.cpp
@@ -9,3 +9,4 @@ src/game/generated/gs_data.hpp
 src/game/generated/nethash.c
 config.bam
 *.exe
+*.patch

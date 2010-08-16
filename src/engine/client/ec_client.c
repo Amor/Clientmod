@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <time.h>
 
 #include <base/system.h>
 #include <engine/e_engine.h>
@@ -576,6 +577,19 @@ static void client_set_state(int s)
 	state = s;
 	if(old != s)
 		modc_statechange(state, old);
+}
+
+void teecomp_demo_start()
+{
+	char filename[512];
+	time_t rawtime;
+	struct tm *tmp;
+
+	time(&rawtime);
+	tmp = localtime(&rawtime);
+
+	str_format(filename, sizeof(filename), "demos/%d-%02d-%d_%02d-%02d-%02d_%s.demo", tmp->tm_year + 1900, tmp->tm_mon + 1, tmp->tm_mday, tmp->tm_hour, tmp->tm_min, tmp->tm_sec, current_map);
+	demorec_record_start(filename, modc_net_version(), current_map, current_map_crc, "client");
 }
 
 /* called when the map is loaded and we should init for a new round */

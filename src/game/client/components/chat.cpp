@@ -5,6 +5,7 @@
 #include <game/generated/gc_data.hpp>
 
 #include <game/client/gameclient.hpp>
+#include <game/client/teecomp.hpp>
 
 #include <game/client/components/sounds.hpp>
 
@@ -88,11 +89,12 @@ void CHAT::on_message(int msgtype, void *rawmsg)
 	if(msgtype == NETMSGTYPE_SV_CHAT)
 	{
 		NETMSG_SV_CHAT *msg = (NETMSG_SV_CHAT *)rawmsg;
-		add_line(msg->cid, msg->team, msg->message);
+		if(msg->cid < 0 || !config.tc_disable_chat)
+			add_line(msg->cid, msg->team, msg->message);
 
-		if(msg->cid >= 0)
+		if(msg->cid >= 0 && !config.tc_disable_chat)
 			gameclient.sounds->play(SOUNDS::CHN_GUI, SOUND_CHAT_CLIENT, 0, vec2(0,0));
-		else
+		else if(msg->cid < 0)
 			gameclient.sounds->play(SOUNDS::CHN_GUI, SOUND_CHAT_SERVER, 0, vec2(0,0));
 	}
 }
@@ -184,15 +186,34 @@ void CHAT::on_render()
 		cursor.line_width = 200.0f;
 
 		// render name
+		vec3 tcolor;
 		gfx_text_color(0.8f,0.8f,0.8f,1);
 		if(lines[r].client_id == -1)
 			gfx_text_color(1,1,0.5f,1); // system
 		else if(lines[r].team)
 			gfx_text_color(0.45f,0.9f,0.45f,1); // team message
 		else if(lines[r].name_color == 0)
-			gfx_text_color(1.0f,0.5f,0.5f,1); // red
+		{
+			if(!gameclient.snap.local_info)
+				gfx_text_color(1.0f,0.5f,0.5f,1); // red
+			else
+			{
+				tcolor = TeecompUtils::getTeamColor(0, gameclient.snap.local_info->team, config.tc_colored_tees_team1,
+						config.tc_colored_tees_team2, config.tc_colored_tees_method);
+				gfx_text_color(tcolor.r, tcolor.g, tcolor.b, 1);
+			}
+		}
 		else if(lines[r].name_color == 1)
-			gfx_text_color(0.7f,0.7f,1.0f,1); // blue
+		{
+			if(!gameclient.snap.local_info)
+				gfx_text_color(0.7f,0.7f,1.0f,1); // blue
+			else
+			{
+				tcolor = TeecompUtils::getTeamColor(1, gameclient.snap.local_info->team, config.tc_colored_tees_team1,
+						config.tc_colored_tees_team2, config.tc_colored_tees_method);
+				gfx_text_color(tcolor.r, tcolor.g, tcolor.b, 1);
+			}	
+		}
 		else if(lines[r].name_color == -1)
 			gfx_text_color(0.75f,0.5f,0.75f, 1); // spectator
 			

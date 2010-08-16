@@ -576,4 +576,7 @@ const char *client_user_directory();
 void client_serverinfo(SERVER_INFO *serverinfo);
 void client_serverinfo_request();
 void client_serverbrowse_request(NETADDR *addr);
+
+void teecomp_demo_start();
+
 #endif

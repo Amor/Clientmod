@@ -12,6 +12,8 @@
 
 #include "items.hpp"
 
+#include <game/client/teecomp.hpp>
+
 void ITEMS::render_projectile(const NETOBJ_PROJECTILE *current, int itemid)
 {
 
@@ -173,9 +175,22 @@ void ITEMS::render_flag(const NETOBJ_FLAG *prev, const NETOBJ_FLAG *current)
 	float angle = 0.0f;
 	float size = 42.0f;
 
+	if(gameclient.snap.local_info && current->carried_by == gameclient.snap.local_info->cid && config.tc_hide_carrying)
+		return;
+
 	gfx_blend_normal();
-	gfx_texture_set(data->images[IMAGE_GAME].id);
+	if(config.tc_colored_flags)
+		gfx_texture_set(data->images[IMAGE_GAME_GRAY].id);
+	else
+		gfx_texture_set(data->images[IMAGE_GAME].id);
 	gfx_quads_begin();
+
+	if(config.tc_colored_flags && gameclient.snap.local_info)
+	{
+		vec3 col = TeecompUtils::getTeamColor(current->team, gameclient.snap.local_info->team,
+			config.tc_colored_tees_team1, config.tc_colored_tees_team2, config.tc_colored_tees_method);
+		gfx_setcolor(col.r, col.g, col.b, 1.0f);
+	}
 
 	if(current->team == 0) // red team
 		select_sprite(SPRITE_FLAG_RED);
@@ -221,7 +236,10 @@ void ITEMS::render_laser(const struct NETOBJ_LASER *current)
 	//vec4 outer_color(0.65f,0.85f,1.0f,1.0f);
 
 	// do outline
-	vec4 outer_color(0.075f,0.075f,0.25f,1.0f);
+	vec4 outer_color(
+		(config.tc_laser_color_outer>>16)/255.0f,
+		((config.tc_laser_color_outer>>8)&0xff)/255.0f,
+		(config.tc_laser_color_outer&0xff)/255.0f, 1.0f);
 	gfx_setcolor(outer_color.r,outer_color.g,outer_color.b,1.0f);
 	out = vec2(dir.y, -dir.x) * (7.0f*ia);
 
@@ -233,7 +251,10 @@ void ITEMS::render_laser(const struct NETOBJ_LASER *current)
 		);
 
 	// do inner	
-	vec4 inner_color(0.5f,0.5f,1.0f,1.0f);
+	vec4 inner_color(
+		(config.tc_laser_color_inner>>16)/255.0f,
+		((config.tc_laser_color_inner>>8)&0xff)/255.0f,
+		(config.tc_laser_color_inner&0xff)/255.0f, 1.0f);
 	out = vec2(dir.y, -dir.x) * (5.0f*ia);
 	gfx_setcolor(inner_color.r, inner_color.g, inner_color.b, 1.0f); // center
 	

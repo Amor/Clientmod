@@ -6,6 +6,8 @@
 #include <game/client/animstate.hpp>
 #include "killmessages.hpp"
 
+#include <game/client/teecomp.hpp>
+
 void KILLMESSAGES::on_reset()
 {
 	killmsg_current = 0;
@@ -67,11 +69,22 @@ void KILLMESSAGES::on_render()
 			if(killmsgs[r].mode_special&1)
 			{
 				gfx_blend_normal();
-				gfx_texture_set(data->images[IMAGE_GAME].id);
+				if(config.tc_colored_flags)
+					gfx_texture_set(data->images[IMAGE_GAME_GRAY].id);
+				else
+					gfx_texture_set(data->images[IMAGE_GAME].id);
 				gfx_quads_begin();
 
 				if(gameclient.clients[killmsgs[r].victim].team == 0) select_sprite(SPRITE_FLAG_BLUE);
 				else select_sprite(SPRITE_FLAG_RED);
+				if(config.tc_colored_flags)
+				{
+					vec3 col = TeecompUtils::getTeamColor(1-gameclient.clients[killmsgs[r].victim].team,
+						gameclient.snap.local_info->team,
+						config.tc_colored_tees_team1, config.tc_colored_tees_team2,
+						config.tc_colored_tees_method);
+					gfx_setcolor(col.r, col.g, col.b, 1.0f);
+				}
 				
 				float size = 56.0f;
 				gfx_quads_drawTL(x, y-16, size/2, size);
@@ -101,11 +114,22 @@ void KILLMESSAGES::on_render()
 				if(killmsgs[r].mode_special&2)
 				{
 					gfx_blend_normal();
-					gfx_texture_set(data->images[IMAGE_GAME].id);
+					if(config.tc_colored_flags)
+						gfx_texture_set(data->images[IMAGE_GAME_GRAY].id);
+					else
+						gfx_texture_set(data->images[IMAGE_GAME].id);
 					gfx_quads_begin();
 
 					if(gameclient.clients[killmsgs[r].killer].team == 0) select_sprite(SPRITE_FLAG_BLUE, SPRITE_FLAG_FLIP_X);
 					else select_sprite(SPRITE_FLAG_RED, SPRITE_FLAG_FLIP_X);
+					if(config.tc_colored_flags)
+					{
+						vec3 col = TeecompUtils::getTeamColor(1-gameclient.clients[killmsgs[r].killer].team,
+							gameclient.snap.local_info->team,
+							config.tc_colored_tees_team1, config.tc_colored_tees_team2,
+							config.tc_colored_tees_method);
+						gfx_setcolor(col.r, col.g, col.b, 1.0f);
+					}
 					
 					float size = 56.0f;
 					gfx_quads_drawTL(x-56, y-16, size/2, size);

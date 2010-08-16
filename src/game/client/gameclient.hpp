@@ -122,10 +122,36 @@ public:
 		vec2 previous_prediction;
 		///---
 		
-		void update_render_info();
+		void update_render_info(int cid);
 	};
 
 	CLIENT_DATA clients[MAX_CLIENTS];
+	
+	// TeeComp vars
+	struct CLIENT_STATS
+	{
+		int join_date;
+		bool active;
+		bool was_active;
+
+		int frags_with[NUM_WEAPONS];
+		int deaths_from[NUM_WEAPONS];
+		int frags;
+		int deaths;
+		int suicides;
+
+		int flag_grabs;
+		int flag_captures;
+  	int carriers_killed;
+		int kills_carrying;
+		int deaths_carrying;
+
+		void reset();
+	};
+	CLIENT_STATS stats[MAX_CLIENTS];
+	bool freeview;
+	int spectate_cid;
+	vec2 spectate_pos;
 	
 	void on_reset();
 
@@ -140,6 +166,16 @@ public:
 	void on_snapshot();
 	void on_predict();
 	int on_snapinput(int *data);
+
+	// TeeComp hooks
+	bool last_game_over;
+	bool last_warmup;
+	int last_flag_carrier[2];
+	void on_game_over();
+	void on_game_restart();
+	void on_warmup_end();
+	void on_flag_grab(int id);
+	void find_next_spectable_cid();
 
 	// actions
 	// TODO: move these
@@ -163,6 +199,7 @@ public:
 	class MOTD *motd;
 	class MAPIMAGES *mapimages;
 	class VOTING *voting;
+	class TEECOMP_STATS *teecomp_stats;
 };
 
 extern GAMECLIENT gameclient;

@@ -241,13 +241,6 @@ void MENUS::render_settings_player(RECT main_view)
 
 typedef void (*assign_func_callback)(CONFIGURATION *config, int value);
 
-typedef struct 
-{
-	const char *name;
-	const char *command;
-	int keyid;
-} KEYINFO;
-
 KEYINFO keys[] = 
 {
 	{ "Move Left:", "+left", 0},
@@ -636,7 +629,7 @@ void MENUS::render_settings(RECT main_view)
 	
 	RECT button;
 	
-	const char *tabs[] = {"Player", "Controls", "Graphics", "Sound"};
+	const char *tabs[] = {"Player", "Controls", "Graphics", "Sound", "TeeComp"};
 	int num_tabs = (int)(sizeof(tabs)/sizeof(*tabs));
 
 	for(int i = 0; i < num_tabs; i++)
@@ -657,8 +650,10 @@ void MENUS::render_settings(RECT main_view)
 		render_settings_graphics(main_view);
 	else if(settings_page == 3)
 		render_settings_sound(main_view);
+	else if(settings_page == 4)
+		render_settings_teecomp(main_view);
 
-	if(need_restart)
+	if(need_restart && settings_page != 4)
 	{
 		RECT restart_warning;
 		ui_hsplit_b(&main_view, 40, &main_view, &restart_warning);

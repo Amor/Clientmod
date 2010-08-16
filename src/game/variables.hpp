@@ -46,6 +46,7 @@ MACRO_CONFIG_INT(ui_color_alpha, 228, 0, 255, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Inte
 
 MACRO_CONFIG_INT(gfx_noclip, 0, 0, 1, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Disable clipping")
 
+#include "teecomp_vars.hpp"
 ///--- Added by Tigra
 MACRO_CONFIG_INT(cl_antiping, 0, 0, 32, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Show predicted shadows")
 ///---

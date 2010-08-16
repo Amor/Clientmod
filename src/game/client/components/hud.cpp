@@ -1,6 +1,7 @@
 #include <memory.h> // memcmp
 
 #include <engine/e_client_interface.h>
+#include <engine/e_demorec.h>
 #include <game/generated/g_protocol.hpp>
 #include <game/generated/gc_data.hpp>
 
@@ -15,6 +16,8 @@
 #include "hud.hpp"
 #include "voting.hpp"
 #include "binds.hpp"
+
+#include <game/client/teecomp.hpp>
 
 HUD::HUD()
 {
@@ -74,10 +77,20 @@ void HUD::render_goals()
 			gfx_blend_normal();
 			gfx_texture_set(-1);
 			gfx_quads_begin();
-			if(t == 0)
-				gfx_setcolor(1,0,0,0.25f);
+			if(!config.tc_hud_match)
+			{
+				if(t == 0)
+					gfx_setcolor(1,0,0,0.25f);
+				else
+					gfx_setcolor(0,0,1,0.25f);
+			}
 			else
-				gfx_setcolor(0,0,1,0.25f);
+			{
+				vec3 col = TeecompUtils::getTeamColor(t, gameclient.snap.local_info->team,
+					config.tc_colored_tees_team1, config.tc_colored_tees_team2, config.tc_colored_tees_method);
+				gfx_setcolor(col.r, col.g, col.b, 0.25f);
+			}
+
 			draw_round_rect(whole-40, 300-40-15+t*20, 50, 18, 5.0f);
 			gfx_quads_end();
 
@@ -93,12 +106,25 @@ void HUD::render_goals()
 					if(gameclient.snap.flags[t]->carried_by == -2 || (gameclient.snap.flags[t]->carried_by == -1 && ((client_tick()/10)&1)))
 					{
 						gfx_blend_normal();
-						gfx_texture_set(data->images[IMAGE_GAME].id);
+						if(config.tc_colored_flags)
+							gfx_texture_set(data->images[IMAGE_GAME_GRAY].id);
+						else
+							gfx_texture_set(data->images[IMAGE_GAME].id);
 						gfx_quads_begin();
 
 						if(t == 0) select_sprite(SPRITE_FLAG_RED);
 						else select_sprite(SPRITE_FLAG_BLUE);
 						
+						if(config.tc_colored_flags)
+						{
+							vec3 col = TeecompUtils::getTeamColor(t,
+								gameclient.snap.local_info->team,
+								config.tc_colored_tees_team1,
+								config.tc_colored_tees_team2,
+								config.tc_colored_tees_method);
+							gfx_setcolor(col.r, col.g, col.b, 1.0f);
+						}
+
 						float size = 16;					
 						gfx_quads_drawTL(whole-40+5, 300-40-15+t*20+1, size/2, size);
 						gfx_quads_end();
@@ -283,6 +309,66 @@ void HUD::render_healthandammo()
 	gfx_quads_end();
 }
 
+void HUD::render_speed()
+{
+	if(!config.tc_speedmeter)
+		return;
+
+	// We calculate the speed instead of getting it from character.velocity cause it's buggy when
+	// walking in front of a wall or when using the ninja sword
+	static float speed;
+	static vec2 oldpos;
+	static const int SMOOTH_TABLE_SIZE = 16;
+	static const int ACCEL_THRESHOLD = 25;
+	static float smooth_table[SMOOTH_TABLE_SIZE];
+	static int smooth_index = 0;
+
+	smooth_table[smooth_index] = distance(gameclient.local_character_pos, oldpos)/client_frametime();
+	if(demorec_isplaying()) {
+		float mult = client_demoplayer_getinfo()->speed;
+		smooth_table[smooth_index] /= mult;
+	}
+	smooth_index = (smooth_index + 1) % SMOOTH_TABLE_SIZE;
+	oldpos = gameclient.local_character_pos;
+	speed = 0;
+	for(int i=0; i<SMOOTH_TABLE_SIZE; i++)
+		speed += smooth_table[i];
+	speed /= SMOOTH_TABLE_SIZE;
+
+	int t = (gameclient.snap.gameobj->flags & GAMEFLAG_TEAMS)? -1 : 1;
+	int last_index = smooth_index - 1;
+	if(last_index < 0)
+		last_index = SMOOTH_TABLE_SIZE - 1;
+
+	gfx_blend_normal();
+	gfx_texture_set(-1);
+	gfx_quads_begin();
+	if(config.tc_speedmeter_accel && speed - smooth_table[last_index] > ACCEL_THRESHOLD)
+		gfx_setcolor(0.6f, 0.1f, 0.1f, 0.25f);
+	else if(config.tc_speedmeter_accel && speed - smooth_table[last_index] < -ACCEL_THRESHOLD)
+		gfx_setcolor(0.1f, 0.6f, 0.1f, 0.25f);
+	else
+		gfx_setcolor(0.1, 0.1, 0.1, 0.25);
+	draw_round_rect(width-40, 245+t*20, 50, 18, 5.0f);
+	gfx_quads_end();
+
+	char buf[16];
+	str_format(buf, sizeof(buf), "%.0f", speed);
+	gfx_text(0, width-5-gfx_text_width(0,12,buf,-1), 246+t*20, 12, buf, -1);
+}
+
+void HUD::render_spectate()
+{
+	if(gameclient.freeview)
+		gfx_text(0, 4*gfx_screenaspect(), 4, 8, "Freeview", -1);
+	else
+	{
+		char buf[96];
+		str_format(buf, sizeof(buf), "Following: %s", gameclient.clients[gameclient.spectate_cid].name);
+		gfx_text(0, 4*gfx_screenaspect(), 4, 8, buf, -1);
+	}
+}
+
 void HUD::on_render()
 {
 	if(!gameclient.snap.gameobj)
@@ -295,7 +381,10 @@ void HUD::on_render()
 		spectate = true;
 	
 	if(gameclient.snap.local_character && !spectate && !(gameclient.snap.gameobj && gameclient.snap.gameobj->game_over))
+	{
 		render_healthandammo();
+		render_speed();
+	}
 
 	render_goals();
 	render_fps();
@@ -304,4 +393,6 @@ void HUD::on_render()
 	render_teambalancewarning();
 	render_voting();
 	render_cursor();
+	if(spectate && !(gameclient.snap.gameobj && gameclient.snap.gameobj->game_over))
+		render_spectate();
 }
