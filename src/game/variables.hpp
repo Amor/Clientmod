@@ -3,6 +3,8 @@
 
 /* client */
 MACRO_CONFIG_INT(gfx_gamelayer, 0, 0, 1, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Only show the game layer")
+MACRO_CONFIG_INT(cl_nameplate_client_id, 0, 0, 1, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Shows the client id above the player")
+MACRO_CONFIG_INT(cl_scoreboard_client_id, 0, 0, 1, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Shows the client id in scoreboard")
 
 MACRO_CONFIG_INT(cl_predict, 1, 0, 1, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Predict client movements")
 MACRO_CONFIG_INT(cl_nameplates, 0, 0, 1, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Show nameplates")

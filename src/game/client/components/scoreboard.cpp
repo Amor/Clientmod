@@ -97,7 +97,16 @@ void SCOREBOARD::render_spectators(float x, float y, float w)
 			{
 				if(count)
 					strcat(buffer, ", ");
-				strcat(buffer, gameclient.clients[info->cid].name);
+				if(config.cl_scoreboard_client_id)
+				{
+					char buf[128];
+					str_format(buf, sizeof(buf), "%d | %s", info->cid, gameclient.clients[info->cid].name);
+					str_append(buffer, buf, sizeof(buffer));
+				}
+				else
+				{
+					strcat(buffer, gameclient.clients[info->cid].name);
+				}
 				count++;
 			}
 		}
@@ -222,7 +231,15 @@ void SCOREBOARD::render_scoreboard(float x, float y, float w, int team, const ch
 		str_format(buf, sizeof(buf), "%4d", info->score);
 		gfx_text(0, x+60-gfx_text_width(0, font_size,buf,-1), y, font_size, buf, -1);
 		
-		gfx_text(0, x+128, y, font_size, gameclient.clients[info->cid].name, -1);
+		if(config.cl_scoreboard_client_id)
+		{
+			str_format(buf, sizeof(buf), "%d | %s", info->cid, gameclient.clients[info->cid].name);
+			gfx_text(0, x+128, y, font_size, buf, -1);
+		}
+		else
+		{
+			gfx_text(0, x+128, y, font_size, gameclient.clients[info->cid].name, -1);
+		}
 
 		str_format(buf, sizeof(buf), "%4d", info->latency);
 		float tw = gfx_text_width(0, font_size, buf, -1);

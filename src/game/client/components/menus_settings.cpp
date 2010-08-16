@@ -84,15 +84,24 @@ void MENUS::render_settings_player(RECT main_view)
 			config.cl_autoswitch_weapons ^= 1;
 			
 		ui_hsplit_t(&main_view, 20.0f, &button, &main_view);
+		if(ui_do_button(&config.cl_scoreboard_client_id, "Show Client ID in scoreboard", config.cl_scoreboard_client_id, &button, ui_draw_checkbox, 0))
+			config.cl_scoreboard_client_id ^= 1;
+			
+		ui_hsplit_t(&main_view, 20.0f, &button, &main_view);
 		if (ui_do_button(&config.cl_nameplates, "Show name plates", config.cl_nameplates, &button, ui_draw_checkbox, 0))
 			config.cl_nameplates ^= 1;
 
-		//if(config.cl_nameplates)
+		if(config.cl_nameplates)
 		{
 			ui_hsplit_t(&main_view, 20.0f, &button, &main_view);
 			ui_vsplit_l(&button, 15.0f, 0, &button);
 			if (ui_do_button(&config.cl_nameplates_always, "Always show name plates", config.cl_nameplates_always, &button, ui_draw_checkbox, 0))
 				config.cl_nameplates_always ^= 1;
+				
+			ui_hsplit_t(&main_view, 20.0f, &button, &main_view);
+			ui_vsplit_l(&button, 15.0f, 0, &button);
+			if(ui_do_button(&config.cl_nameplate_client_id, "Client ID", config.cl_nameplate_client_id, &button, ui_draw_checkbox, 0))
+				config.cl_nameplate_client_id ^= 1;
 		}
 			
 		ui_hsplit_t(&main_view, 20.0f, &button, &main_view);

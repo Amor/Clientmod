@@ -55,7 +55,7 @@ void NAMEPLATES::render_nameplate(
 
 		gfx_text(0, position.x-tw/2.0f, position.y-60, 28.0f, name, -1);
 		
-		if(config.debug) // render client id when in debug aswell
+		if(config.debug || config.cl_nameplate_client_id) // render client id when in debug aswell
 		{
 			char buf[128];
 			str_format(buf, sizeof(buf),"%d", player_info->cid);
